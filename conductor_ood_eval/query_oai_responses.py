@@ -3,6 +3,20 @@ import time
 from typing import List ,Dict ,Optional 
 from openai import AsyncOpenAI 
 
+def _openai_client ()->AsyncOpenAI :
+    kwargs ={
+    "api_key":os .getenv ("OPENAI_API_KEY"),
+    "max_retries":50 ,
+    "timeout":3000 ,
+    }
+    base_url =os .getenv ("OPENAI_BASE_URL")
+    if base_url :
+        kwargs ["base_url"]=base_url
+    return AsyncOpenAI (**kwargs )
+
+def _resolve_openai_model (model_name :str )->str :
+    return os .getenv ("OPENAI_MODEL_NAME")or model_name
+
 def _flatten_messages_to_input (messages :List [Dict [str ,str ]]):
 
     instructions =None 
@@ -26,7 +40,8 @@ reasoning_effort :str ="minimal",
 verbosity :str ="medium",
 )->str :
 
-    client =AsyncOpenAI (api_key =os .getenv ("OPENAI_API_KEY"),max_retries =50 ,timeout =3000 )
+    client =_openai_client ()
+    model_name =_resolve_openai_model (model_name )
 
 
     instructions ,input_text =_flatten_messages_to_input (messages )

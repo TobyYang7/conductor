@@ -1,0 +1,29 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8081,
+    "log_level": "INFO",
+    "api_key_required": false,
+    "cors_enabled": true,
+    "max_request_size": 100
+  },
+  "engines": [
+    {
+      "name": "smoke-openai-env",
+      "engine_type": "single",
+      "is_default": true,
+      "config": {
+        "model_name": "env-openai-model",
+        "model_type": "openai",
+        "generation_config": {
+          "max_new_token": 512,
+          "thinking_budget": 0,
+          "temperature": 0.1
+        }
+      }
+    }
+  ],
+  "logging": {
+    "log_dir": "./logs/server_logs"
+  }
+}

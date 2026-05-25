@@ -136,6 +136,52 @@ def main (cfg :DictConfig ):
         trainer .log_metrics ("eval",results )
         return 
 
+    trainer =hydra .utils .instantiate (
+    cfg .trainer ,
+    **datasets ,
+    )
+
+    last_checkpoint =get_checkpoint (cfg .output_dir )
+    if not last_checkpoint and cfg .resume_from is not None :
+        last_checkpoint =get_checkpoint (cfg .resume_from )
+    if last_checkpoint :
+        logger .info ("Found checkpoint, resuming training run from "
+        f"{last_checkpoint}.")
+    else :
+        logger .info ("No existing checkpoint, initializing new model")
+
+    logger .info (f"Training  {datetime.now()}")
+    train_result =trainer .train (resume_from_checkpoint =last_checkpoint )
+    logger .info (f"Training complete {datetime.now()}")
+
+    trainer .log_metrics ("train",train_result .metrics )
+    trainer .save_metrics ("train",train_result .metrics )
+    trainer .save_state ()
+
+    if cfg .get ("eval_after_training",False ):
+        logger .info (f"Evaluation  {datetime.now()}")
+        eval_results =trainer .evaluate ()
+        logger .info (f"Evaluation complete {datetime.now()}")
+        print (eval_results )
+        trainer .log_metrics ("eval",eval_results )
+        trainer .save_metrics ("eval",eval_results )
+
+    if cfg .save_final_model :
+        logger .info (f"Saving final model at {cfg.output_dir}")
+        trainer .model .config .use_cache =True
+        trainer .save_model (cfg .output_dir )
+        tokenizer .save_pretrained (cfg .output_dir )
+        logger .info (f"Done saving {datetime.now()}")
+
+    if is_main_process and cfg .push_to_hub :
+        tags =cfg .tags if cfg .tags is not None else []
+        trainer .create_model_card ({"tags":tags })
+    if cfg .push_to_hub :
+        logger .info ("Pushing to hub...")
+        trainer .push_to_hub ()
+
+    if is_main_process and cfg .call_post_training is not None :
+        hydra .utils .instantiate (cfg .call_post_training )
 
 
 

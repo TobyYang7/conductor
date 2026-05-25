@@ -13,10 +13,25 @@ import uuid
 
 THINKING_BUDGET =1024 
 
+def _openai_client ()->OpenAI :
+    kwargs ={
+    "api_key":os .getenv ("OPENAI_API_KEY"),
+    "max_retries":50 ,
+    "timeout":float (os .getenv ("OPENAI_TIMEOUT","300")),
+    }
+    base_url =os .getenv ("OPENAI_BASE_URL")
+    if base_url :
+        kwargs ["base_url"]=base_url
+    return OpenAI (**kwargs )
+
+def _resolve_openai_model (model :str )->str :
+    return os .getenv ("OPENAI_MODEL_NAME")or model
+
 def query_oai (
 model :str ,messages :List [Dict ],max_tokens :int ,temperature :float ,reasoning_effort :str ="minimal",**kwargs 
 )->str :
-    client =OpenAI (api_key =os .getenv ("OPENAI_API_KEY"),max_retries =50 )
+    client =_openai_client ()
+    model =_resolve_openai_model (model )
 
     if model =="gpt-5":
         if reasoning_effort =="high":

@@ -20,6 +20,7 @@ class Dataset ():
     tokenizer_kwargs ={},
     max_model_length =8192 ,
     eval_max_samples =-1 ,
+    train_max_samples =-1 ,
     evaluate_only =False ,
     finetune =False ,
     ):
@@ -34,7 +35,9 @@ class Dataset ():
         else :
             self .dataset =self .task .grab_data (split =split )
 
-        if eval_max_samples >0 and len (self .dataset )>eval_max_samples :
+        if split =="train"and train_max_samples >0 and len (self .dataset )>train_max_samples :
+            self .dataset =self .dataset .select (range (train_max_samples ))
+        elif eval_max_samples >0 and len (self .dataset )>eval_max_samples :
             self .dataset =self .dataset .select (range (eval_max_samples ))
 
         self .format =PROMPT_FORMAT_LIBRARY .get (prompt_template ,None )
@@ -120,6 +123,7 @@ seed :int =42 ,
 hide_parameters :bool =True ,
 evaluate_only :bool =False ,
 eval_max_samples :int =-1 ,
+train_max_samples :int =-1 ,
 finetune :bool =False ,
 max_model_length :int =8192 ,
 **kwargs 
@@ -144,6 +148,7 @@ max_model_length :int =8192 ,
     evaluate_only =evaluate_only ,
     finetune =finetune ,
     max_model_length =max_model_length ,
+    train_max_samples =train_max_samples ,
     tokenizer_kwargs =tokenizer_kwargs 
     ),
     "eval_dataset":Dataset (tokenizer ,

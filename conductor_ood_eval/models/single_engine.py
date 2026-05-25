@@ -53,7 +53,7 @@ class SingleModelEngine (ModelEngine ):
         temperature =request .temperature or 0.1 
         thinking_budget =None 
 
-        if self .generation_config !={}:
+        if self .generation_config :
             max_tokens =self .generation_config ['max_new_token']
             thinking_budget =self .generation_config ['thinking_budget']
             temperature =self .generation_config ['temperature']

@@ -20,9 +20,24 @@ GEMINI_MAX_BACKOFF =float (os .getenv ("GEMINI_MAX_BACKOFF","20.0"))
 
 GEMINI_SEMAPHORE =asyncio .Semaphore (GEMINI_MAX_CONCURRENT )
 
+def _openai_client ()->AsyncOpenAI :
+    kwargs ={
+    "api_key":os .getenv ("OPENAI_API_KEY"),
+    "max_retries":50 ,
+    "timeout":3000 ,
+    }
+    base_url =os .getenv ("OPENAI_BASE_URL")
+    if base_url :
+        kwargs ["base_url"]=base_url
+    return AsyncOpenAI (**kwargs )
+
+def _resolve_openai_model (model_name :str )->str :
+    return os .getenv ("OPENAI_MODEL_NAME")or model_name
+
 async def query_oai (model_name :str ,messages :List [Dict [str ,str ]],
 max_tokens :Optional [int ],temperature :float ,reasoning_effort :str ="minimal",versbosity :str ="medium")->str :
-    client =AsyncOpenAI (api_key =os .getenv ("OPENAI_API_KEY"),max_retries =50 ,timeout =3000 )
+    client =_openai_client ()
+    model_name =_resolve_openai_model (model_name )
 
     if model_name =="gpt-5":
         if reasoning_effort =="high":

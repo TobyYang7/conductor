@@ -1,0 +1,17 @@
+defaults:
+  - run_conductor_smoke_openai
+  - _self_
+
+train_max_samples: -1
+eval_max_samples: -1
+max_steps: 200
+max_completion_length: 512
+max_agent_tokens: 512
+
+save_strategy: steps
+save_steps: 100
+save_final_model: true
+eval_after_training: true
+
+wandb_group_name: training_full/qwen3_4b
+wandb_run_name: conductor_grpo_mmlu_openai_worker_200step_eval
